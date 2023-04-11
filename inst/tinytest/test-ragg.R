@@ -13,12 +13,12 @@ p2 <- function() plot(mtcars$hp, mtcars$wt)
 # good plot
 # Run once to create the reference plot
 # Run twice to pass the test
-if (!ON_CRAN) {
-    expect_snapshot_plot(p1, "ragg-base")
-}
+expect_snapshot_plot(p1, "ragg-base")
 
 # bad plot always fails
-expect_false(ignore(expect_snapshot_plot)(p2, "ragg-base"))
+if (Sys.info()["sysname"] %in% getOption("tinysnapshot_os", default = Sys.info()["sysname"])) {
+    expect_false(ignore(expect_snapshot_plot)(p2, "ragg-base"))
+}
 
 ###### ggplot2
 suppressPackageStartupMessages(library("ggplot2"))
@@ -29,7 +29,9 @@ if (!ON_CRAN) {
 }
 
 p2 <- ggplot(mtcars, aes(mpg, wt)) + geom_point()
-expect_false(ignore(expect_snapshot_plot)(p2, "ragg-ggplot2_variable"))
+if (Sys.info()["sysname"] %in% getOption("tinysnapshot_os", default = Sys.info()["sysname"])) {
+    expect_false(ignore(expect_snapshot_plot)(p2, "ragg-ggplot2_variable"))
+}
 
 
 
