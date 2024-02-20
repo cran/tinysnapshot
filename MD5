@@ -1,12 +1,12 @@
-53f2fc602e866ae1a3209a56a44f17ae *DESCRIPTION
+d2278e788114319a4cab5b3410182960 *DESCRIPTION
 9a1a1fb2c2d492ae6ef71d23cd9cc5c7 *NAMESPACE
-2603228bff429a65e10abbe4d5a03b76 *NEWS.md
+7120ec6a7d19b78518b1ceb82a9a5ed0 *NEWS.md
 72f3ea9df8fb98cc0cd876920829a1f2 *R/expect_snapshot_plot.R
-5bc04adc126cab2b2747399c1da72957 *R/expect_snapshot_print.R
+ce06b6147af4f528b36f74fbad17eaef *R/expect_snapshot_print.R
 aa12b313852c548c5702e6fc529a4de7 *R/utils.R
 91d983acfd82bc6e934bfb3b33c552a7 *R/zzz.R
 9092970387733fd12f0a3b74da2b3c7a *README.md
-94d32cf627f452bf68a712c047a4ebbe *build/partial.rdb
+de6e46fb8c918041b8ace4d34641139a *build/partial.rdb
 afd6133afa249f9affd4106dc62442ff *inst/WORDLIST
 05c50a39e2fd6e90aa76cd30aceb0c38 *inst/tinytest/_tinysnapshot/png-base.png
 118af116baa8e0a50d1ebb2ed643166c *inst/tinytest/_tinysnapshot/png-ggplot2_theme.png
