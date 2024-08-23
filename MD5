@@ -1,12 +1,12 @@
-109b63d2b6bc74f4570df99bb1e6cd2a *DESCRIPTION
+da8e6c7d6d12c46a3830d10554607960 *DESCRIPTION
 9a1a1fb2c2d492ae6ef71d23cd9cc5c7 *NAMESPACE
-9576ded5632880332742e49fa823da15 *NEWS.md
+f6420cf48a8b5546c6b7e7dc1c9098df *NEWS.md
 72f3ea9df8fb98cc0cd876920829a1f2 *R/expect_snapshot_plot.R
-47f2259dc900ad6f1039452a642ffa9d *R/expect_snapshot_print.R
-aa12b313852c548c5702e6fc529a4de7 *R/utils.R
+fd5431b7d134d0b5c1aa8cdcb35e0a3b *R/expect_snapshot_print.R
+58b4e256f9a52d91c86130d1b1ef6c88 *R/utils.R
 91d983acfd82bc6e934bfb3b33c552a7 *R/zzz.R
 9092970387733fd12f0a3b74da2b3c7a *README.md
-97bbb7645578433d3c7a660897cd3838 *build/partial.rdb
+56b98560ae87f9d757615190d836cb13 *build/partial.rdb
 afd6133afa249f9affd4106dc62442ff *inst/WORDLIST
 05c50a39e2fd6e90aa76cd30aceb0c38 *inst/tinytest/_tinysnapshot/png-base.png
 118af116baa8e0a50d1ebb2ed643166c *inst/tinytest/_tinysnapshot/png-ggplot2_theme.png
