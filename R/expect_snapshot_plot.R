@@ -22,13 +22,15 @@
 #' @param device "svg", "png", "ragg" or "svglite"
 #' @param device_args list of arguments to pass to the device call (e.g., `user_fonts` for `svglite` device).
 #' @param par_args named list of arguments to pass to `graphics::par()` for setting graphical parameters. Only used when `device` is "png" or "ragg". Default is `NULL`.
+#' @param theme a `ggplot2` theme function. `NULL` (default) uses `ggplot2::theme_test()`.
 #' @param tol distance estimates larger than this threshold will trigger a test failure. Scale depends on the `metric` argument. With the default `metric="AE"` (absolute error), the `tolerance` corresponds roughly to the number of pixels of difference between the plot and the reference image.
 #' @param metric string with a metric from `magick::metric_types()` such as `"AE"` or `"phash"`.
 #' @param fuzz relative color distance between 0 and 100 to be considered similar.
 #' @param style A character vector to control the panels of the diff image saved to file. The order and number of entries controls the side-by-side panels. Allowable values are: "old", "new", "diff".
 #' @param review logical. TRUE if a a diff plot should be saved to file for review when the expectation fails.
 #' @param os character vector of operating systems on which the test should be run (e.g., "Windows", "Linux", "Darwin"). Tests are skipped when no element of the vector matches the output of: `Sys.info()["sysname"]`
-#' @param skip logical. If TRUE, the test is skipped. Default: TRUE when not interactive and NOT_CRAN environment variable is not "true".
+#' @param skip logical. If TRUE, the test is skipped (with a message). Default: TRUE when the session is not interactive and neither the `NOT_CRAN` nor the `R_COVR` environment variable is set to "true".
+#' @param info a string with user-supplied context shown when the test fails, prepended to the internal message.
 #' @return A `tinytest` object. A `tinytest` object is a `logical` with attributes holding information about the test that was run
 #'
 #' @export
@@ -43,14 +45,21 @@ expect_snapshot_plot <- function(
     device = getOption("tinysnapshot_device", default = "svg"),
     device_args = getOption("tinysnapshot_device_args", default = list()),
     par_args = getOption("tinysnapshot_par_args", default = NULL),
+    theme = getOption("tinysnapshot_theme", default = NULL),
     style = getOption("tinysnapshot_plot_diff_style", default = c("old", "new", "diff")),
     review = getOption("tinysnapshot_plot_review", default = TRUE),
     os = getOption("tinysnapshot_os", default = Sys.info()["sysname"]),
     skip = getOption(
       "tinysnapshot_plot_skip",
-      default = !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
-    )) {
+      default = !interactive() &&
+        !identical(Sys.getenv("NOT_CRAN"), "true") &&
+        !identical(Sys.getenv("R_COVR"), "true")
+    ),
+    info = NULL) {
   ts_assert_choice(device, c("ragg", "png", "svg", "svglite"))
+  if (!is.null(theme) && !is.function(theme)) {
+    stop("`theme` must be NULL or an unevaluated function.", call. = FALSE)
+  }
 
   cal <- sys.call(sys.parent(1))
 
@@ -63,6 +72,12 @@ expect_snapshot_plot <- function(
   }
 
   if (!Sys.info()["sysname"] %in% os || skip) {
+    if (skip) {
+      msg <- "Skipping snapshot test `%s`: the session is not interactive and neither the `NOT_CRAN` nor the `R_COVR` environment variable is set to \"true\". Set `options(tinysnapshot_plot_skip = FALSE)` or the `skip` argument to force the test to run."
+    } else {
+      msg <- "Skipping snapshot test `%s`: the operating system does not match the `os` argument."
+    }
+    message(sprintf(msg, label))
     return(invisible(NULL))
   }
 
@@ -86,8 +101,8 @@ expect_snapshot_plot <- function(
   snapshot_fn <- file.path("_tinysnapshot", paste0(snapshot, ext))
 
   if (!is.function(current) && !inherits(current, "ggplot")) {
-    info <- "`current` must be a `ggplot2` object or a function which returns a base `R` plot."
-    return(tinytest::tinytest(FALSE, call = cal, info = info))
+    msg <- "`current` must be a `ggplot2` object or a function which returns a base `R` plot."
+    return(tinytest::tinytest(FALSE, call = cal, info = ts_prepend_info(info, msg)))
   }
 
   device_args[["filename"]] <- current_fn
@@ -118,7 +133,12 @@ expect_snapshot_plot <- function(
 
   if (inherits(current, "ggplot")) {
     ts_assert_package("ggplot2")
-    print(current + ggplot2::theme_test())
+    if (is.null(theme)) {
+      print(current + ggplot2::theme_test())
+    } else if (is.function(theme)) {
+      print(current + theme())
+    } else {
+    }
   } else {
     current()
   }
@@ -129,14 +149,14 @@ expect_snapshot_plot <- function(
     if (isTRUE(tinytest::at_home())) {
       dir.create(dirname(snapshot_fn), recursive = TRUE, showWarnings = FALSE)
       file.copy(from = current_fn, to = snapshot_fn)
-      info <- paste("Creating snapshot:", snapshot_fn)
+      msg <- paste("Creating snapshot:", snapshot_fn)
     } else {
       # stop() otherwise source("test-file.R") fails silently
-      info <- "Snapshot missing: %s. Make sure you execute commands in the right directory, or use one of the `tinytest` runners to generate new snapshots: `run_test_dir()` or `run_test_file()`."
-      info <- sprintf(info, snapshot_fn)
-      stop(info, call. = FALSE)
+      msg <- "Snapshot missing: %s. Make sure you execute commands in the right directory, or use one of the `tinytest` runners to generate new snapshots: `run_test_dir()` or `run_test_file()`."
+      msg <- sprintf(msg, snapshot_fn)
+      stop(msg, call. = FALSE)
     }
-    return(tinytest::tinytest(FALSE, call = cal, info = info))
+    return(tinytest::tinytest(FALSE, call = cal, info = ts_prepend_info(info, msg)))
   }
 
   # if snapshot present -> compare images and save diff plot
@@ -155,6 +175,9 @@ expect_snapshot_plot <- function(
     )
   )
   attr(out, "call") <- cal
+  if (!is.null(info)) {
+    attr(out, "info") <- ts_prepend_info(info, attr(out, "info"))
+  }
   return(out)
 }
 

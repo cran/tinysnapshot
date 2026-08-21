@@ -15,11 +15,14 @@ expect_snapshot_plot(
   device = getOption("tinysnapshot_device", default = "svg"),
   device_args = getOption("tinysnapshot_device_args", default = list()),
   par_args = getOption("tinysnapshot_par_args", default = NULL),
+  theme = getOption("tinysnapshot_theme", default = NULL),
   style = getOption("tinysnapshot_plot_diff_style", default = c("old", "new", "diff")),
   review = getOption("tinysnapshot_plot_review", default = TRUE),
   os = getOption("tinysnapshot_os", default = Sys.info()["sysname"]),
   skip = getOption("tinysnapshot_plot_skip", default = !interactive() &&
-    !identical(Sys.getenv("NOT_CRAN"), "true"))
+    !identical(Sys.getenv("NOT_CRAN"), "true") && !identical(Sys.getenv("R_COVR"),
+    "true")),
+  info = NULL
 )
 }
 \arguments{
@@ -43,13 +46,17 @@ expect_snapshot_plot(
 
 \item{par_args}{named list of arguments to pass to \code{graphics::par()} for setting graphical parameters. Only used when \code{device} is "png" or "ragg". Default is \code{NULL}.}
 
+\item{theme}{a \code{ggplot2} theme function. \code{NULL} (default) uses \code{ggplot2::theme_test()}.}
+
 \item{style}{A character vector to control the panels of the diff image saved to file. The order and number of entries controls the side-by-side panels. Allowable values are: "old", "new", "diff".}
 
 \item{review}{logical. TRUE if a a diff plot should be saved to file for review when the expectation fails.}
 
 \item{os}{character vector of operating systems on which the test should be run (e.g., "Windows", "Linux", "Darwin"). Tests are skipped when no element of the vector matches the output of: \code{Sys.info()["sysname"]}}
 
-\item{skip}{logical. If TRUE, the test is skipped. Default: TRUE when not interactive and NOT_CRAN environment variable is not "true".}
+\item{skip}{logical. If TRUE, the test is skipped (with a message). Default: TRUE when the session is not interactive and neither the \code{NOT_CRAN} nor the \code{R_COVR} environment variable is set to "true".}
+
+\item{info}{a string with user-supplied context shown when the test fails, prepended to the internal message.}
 }
 \value{
 A \code{tinytest} object. A \code{tinytest} object is a \code{logical} with attributes holding information about the test that was run
